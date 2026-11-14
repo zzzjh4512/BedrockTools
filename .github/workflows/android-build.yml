@@ -11,7 +11,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
       with:
-        ref: 8d734836d81f0655f870c0c1d4b8609f7221d1a6
+        ref: 2d45c1c877051094279337ad0532a5df95c1dc7f
 
     - name: Setup Python
       uses: actions/setup-python@v5
