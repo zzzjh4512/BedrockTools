@@ -1,0 +1,41 @@
+name: Build Android ARM64 Mod
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: # 允许在手机上手动点按钮触发编译
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Setup xmake
+      uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: latest
+
+    - name: Download Android NDK r28c
+      run: |
+        echo "Downloading NDK r28c..."
+        wget -q https://dl.google.com/android/repository/android-ndk-r28c-linux.zip
+        unzip -q android-ndk-r28c-linux.zip -d ${{ github.workspace }}
+
+    - name: Build Mod with xmake
+      run: |
+        # 配置android arm64目标，指定刚刚下载的NDK路径
+        xmake f -y -p android -a arm64-v8a -m release --ndk=${{ github.workspace }}/android-ndk-r28c
+        # 执行编译
+        xmake -y
+
+    - name: Upload Levipack Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BedrockTools-Chinese
+        path: build/**/*.levipack
