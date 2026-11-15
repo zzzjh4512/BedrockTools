@@ -12,11 +12,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: 2d45c1c877051094279337ad0532a5df95c1dc7f
-        fetch-depth: 0 # 必须要有，为了拉取完整历史以提取补丁
+        fetch-depth: 0
 
     - name: Extract Patch File
       run: |
-        # 尝试从 main 或 master 分支提取补丁文件
+        # 强制拉取 main 和 master 分支的引用到本地
+        git fetch origin main || git fetch origin master
+        
+        # 从分支中提取补丁
         if git show origin/main:chinese-localization-v154.patch > chinese-localization-v154.patch 2>/dev/null; then
           echo "✅ 成功从 main 分支提取补丁"
         elif git show origin/master:chinese-localization-v154.patch > chinese-localization-v154.patch 2>/dev/null; then
@@ -25,11 +28,10 @@ jobs:
           echo "❌ 找不到补丁文件，请检查文件名和所在分支！"
           exit 1
         fi
+        echo "补丁文件大小: $(wc -c < chinese-localization-v154.patch) 字节"
 
     - name: Apply Chinese Localization Patch
       run: |
-        echo "补丁文件大小: $(wc -c < chinese-localization-v154.patch) 字节"
-        # 加上 --ignore-whitespace 防止因为不可见的空格/换行符导致应用失败
         git apply --ignore-whitespace chinese-localization-v154.patch
         echo "✅ 补丁应用成功！"
 
