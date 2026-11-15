@@ -2,7 +2,7 @@ name: Build Android ARM64 Mod
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # 允许在手机上手动点按钮触发编译
+  workflow_dispatch: # 允许手动点按钮触发编译
 
 jobs:
   build:
@@ -12,9 +12,15 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: 2d45c1c877051094279337ad0532a5df95c1dc7f
-    
+        fetch-depth: 0 # 确保拉取完整历史
+
+    # ▼▼▼ 新增这一步：直接从你的仓库下载补丁文件 ▼▼▼
+    - name: Download Patch File
+      run: curl -sL https://raw.githubusercontent.com/zzzjh4512/BedrockTools/main/chinese-localization-v154.patch -o chinese-localization-v154.patch
+
     - name: Apply Chinese Localization Patch
       run: git apply chinese-localization-v154.patch
+    # ▲▲▲ 新增结束 ▲▲▲
       
     - name: Setup Python
       uses: actions/setup-python@v5
