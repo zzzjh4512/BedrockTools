@@ -11,27 +11,19 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
       with:
+        # 锁定 26.51 支持版本
         ref: 2d45c1c877051094279337ad0532a5df95c1dc7f
-        fetch-depth: 0
 
-    - name: Extract Patch File
+    - name: Download and Apply Patch
       run: |
-        # 强制拉取 main 和 master 分支的引用到本地
-        git fetch origin main || git fetch origin master
+        echo "--- 正在下载补丁 ---"
+        # 从 main 分支根目录下载（如果报错404，请把 main 改成 master 试试）
+        curl -fL https://raw.githubusercontent.com/zzzjh4512/BedrockTools/main/chinese-localization-v154.patch -o chinese-localization-v154.patch
         
-        # 从分支中提取补丁
-        if git show origin/main:chinese-localization-v154.patch > chinese-localization-v154.patch 2>/dev/null; then
-          echo "✅ 成功从 main 分支提取补丁"
-        elif git show origin/master:chinese-localization-v154.patch > chinese-localization-v154.patch 2>/dev/null; then
-          echo "✅ 成功从 master 分支提取补丁"
-        else
-          echo "❌ 找不到补丁文件，请检查文件名和所在分支！"
-          exit 1
-        fi
-        echo "补丁文件大小: $(wc -c < chinese-localization-v154.patch) 字节"
-
-    - name: Apply Chinese Localization Patch
-      run: |
+        echo "--- 检查补丁大小 ---"
+        wc -c < chinese-localization-v154.patch
+        
+        echo "--- 正在应用补丁 ---"
         git apply --ignore-whitespace chinese-localization-v154.patch
         echo "✅ 补丁应用成功！"
 
